@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../FNA/FNA.Core.csproj"/>
+  </ItemGroup>
+  <ItemGroup>
+    <fnalibs Include="../fnalibs/*/**"/>
+  </ItemGroup>
+  <Target Name="CopyLibsAfterBuild" AfterTargets="Build">
+    <Copy
+      SourceFiles="@(fnalibs)"
+      DestinationFiles="@(fnalibs->'bin/$(Configuration)/$(TargetFramework)/%(RecursiveDir)%(Filename)%(Extension)')"
+    />
+  </Target>
+  <Target Name="CopyLibsAfterPublish" AfterTargets="Publish">
+    <Copy
+      SourceFiles="@(fnalibs)"
+      DestinationFiles="@(fnalibs->'bin/$(Configuration)/$(TargetFramework)/publish/%(RecursiveDir)%(Filename)%(Extension)')"
+    />
+  </Target>
+</Project>
