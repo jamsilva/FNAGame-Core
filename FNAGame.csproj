@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefaultItemExcludes>$(DefaultItemExcludes);Dependencies/**;</DefaultItemExcludes>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'">
+    <FNALibsSubdir>lib64</FNALibsSubdir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))'">
+    <FNALibsSubdir>osx</FNALibsSubdir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
+    <FNALibsSubdir>x64</FNALibsSubdir>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="Dependencies/FNA/FNA.Core.csproj"/>
+    <FNALibs Include="Dependencies/fnalibs/$(FNALibsSubDir)/**"/>
+  </ItemGroup>
+  <Target Name="CopyLibsAfterBuild" AfterTargets="Build">
+    <Copy
+      SourceFiles="@(FNALibs)"
+      DestinationFiles="@(FNALibs->'bin/$(Configuration)/$(TargetFramework)/%(Filename)%(Extension)')"
+    />
+    <Move Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'"
+      SourceFiles="bin/$(Configuration)/$(TargetFramework)/libFNA3D.so.0"
+      DestinationFiles="bin/$(Configuration)/$(TargetFramework)/libFNA3D.so"
+    />
+  </Target>
+  <Target Name="CopyLibsAfterPublish" AfterTargets="Publish">
+    <Copy
+      SourceFiles="@(FNALibs)"
+      DestinationFiles="@(FNALibs->'bin/$(Configuration)/$(TargetFramework)/$(RuntimeIdentifier)/publish/%(Filename)%(Extension)')"
+    />
+    <Move Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))'"
+      SourceFiles="bin/$(Configuration)/$(TargetFramework)/$(RuntimeIdentifier)/publish/libFNA3D.so.0"
+      DestinationFiles="bin/$(Configuration)/$(TargetFramework)/$(RuntimeIdentifier)/publish/libFNA3D.so"
+    />
+  </Target>
+</Project>
